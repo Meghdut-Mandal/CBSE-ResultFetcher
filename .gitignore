@@ -1,0 +1,3 @@
+Res/
+Results/
+build/
