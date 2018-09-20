@@ -23,7 +23,7 @@ import java.util.Scanner;
  *
  * @author Meghdut Mandal
  */
-public class SchoolCodeExtractor {
+class SchoolCodeExtractor {
 
     private static void process(String s) {
 

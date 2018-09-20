@@ -5,29 +5,36 @@
  */
 package newton.fetcher;
 
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import newton.resultApi.CBSEResult;
+import newton.resultApi.HtmlUnitClient;
+import newton.resultApi.ResultClient;
+
+import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.SwingWorker;
-import newton.resultApi.CBSEResult;
-import newton.resultApi.HtmlUnitClient;
 
 /**
- *
  * @author Meghdut Mandal
  */
-public class CBSEResultLoader extends SwingWorker<List<CBSEResult>, CBSEResult> {
+class CBSEResultLoader extends SwingWorker<List<CBSEResult>, CBSEResult> {
 
     final App app;
     BatchView currentBatch;
-    boolean isRunning;
-    boolean reported = false;
+    private int start;
+    private int end;
+    private int year;
+
+    private String site;
+    private String schCode = "", cntrNo = "";
+    private File dir;
+
+    private boolean reportedToServer = false;
+////////  HSMS year 2016 6620110
 
     /**
-     *
      * @param App
      */
     public CBSEResultLoader(final App App) {
@@ -35,85 +42,82 @@ public class CBSEResultLoader extends SwingWorker<List<CBSEResult>, CBSEResult> 
         this.currentBatch = App.getNewBatch();
 
         App.setCurrentBatch(currentBatch);
+
+        start = app.getStartRegno();
+
+        end = app.getEndRegno();
+        year = app.getSelectedYear();
+
+        site = HtmlUnitClient.getSiteByYear(year);
+
+        dir = new File(app.getUserdir().getAbsolutePath() + "\\CBSE" + app.getSelectedYear());
+        dir.mkdirs();
     }
-////////  HSMS year 2016 6620110
+
+    private String getCbseResult(String roll) throws IOException {
+        String pageHtml = "";
+        switch (year) {
+            case 2018:
+                schCode = app.getSchCode();
+                cntrNo = app.getCenterNo();
+                pageHtml = app.getCBSEFetcher().getCBSE18(roll, schCode, cntrNo);
+                break;
+            case 2017:
+                schCode = app.getSchCode();
+                cntrNo = app.getCenterNo();
+                pageHtml = app.getCBSEFetcher().getCBSE17(roll, schCode, cntrNo);
+                break;
+            case 2016:
+                schCode = app.getSchCode();
+                pageHtml = app.getCBSEFetcher().getCBSE16Result(roll, schCode);
+                break;
+            default:
+                pageHtml = app.getCBSEFetcher().getCBSEOldResult(roll, site);
+
+        }
+        return pageHtml;
+    }
 
     @Override
     @SuppressWarnings("UseSpecificCatch")
-    public List<CBSEResult> doInBackground() throws IOException {
-        int start = app.getStartRegno();
-        int end = app.getEndRegno();
-        HtmlPage cbseResult = null;
-        int year = app.getSelectedYear();
-        String site = HtmlUnitClient.getSiteByYear(year);
-
+    public List<CBSEResult> doInBackground() {
+        String pageHtml = null;
         try {
-            System.out.println("SIte " + year);
 
-            File dir = new File(app.getUserdir().getAbsolutePath() + "\\CBSE" + app.getSelectedYear());
-            dir.mkdirs();
+            for (int roll = start; roll <= end && !this.isCancelled(); roll += 1) {
 
-            String schc = "", cno = "";
-            isRunning = true;
+                pageHtml = getCbseResult(roll + "");
+                if (hasResult(pageHtml)) {
+                    app.getInfoLable().setText("Not Found " + roll);
 
-            for (int i = start; i <= end && isRunning && !this.isCancelled(); i += 1) {
-
-                switch (year) {
-                    case 2018:
-                        schc = app.getSchCode();
-                        cno = app.getCenterNo();
-                        cbseResult = app.getCBSEFetcher().getCBSE18("" + i, schc, cno);
-                        break;
-                    case 2017:
-                        schc = app.getSchCode();
-                        cno = app.getCenterNo();
-                        cbseResult = app.getCBSEFetcher().getCBSE17("" + i, schc, cno);
-
-                        break;
-                    case 2016:
-                        schc = app.getSchCode();
-                        cbseResult = app.getCBSEFetcher().getCBSE16Result("" + i, schc);
-                        break;
-                    default:
-                        cbseResult = app.getCBSEFetcher().getCBSEOldResult("" + i, site);
-
-                }
-
-                if (cbseResult == null || cbseResult.asText().contains("Not Found") || cbseResult.asText().contains("Please enter valid Roll no")) {
-                    app.getInfoLable().setText("Not Found " + i);
                 } else {
-                    app.getCBSEFetcher().writePageToFile(cbseResult, dir.getAbsolutePath() + "\\Result" + i + ".html");
-                    CBSEResult result = app.getCBSEFetcher().getResult(cbseResult);
-                    if (!this.reported) {
-                        reported = Main.loggToServer("Rollno " + i + " School code " + schc + "Center no " + cno);
-                        System.out.println(reported);
+                    app.getCBSEFetcher().writePageToFile(pageHtml, dir.getAbsolutePath() + "\\Result" + roll + ".html");
+                    CBSEResult result = ResultClient.getResult(pageHtml);
+                    if (!this.reportedToServer) {
+                        reportedToServer = Main.loggToServer("Rollno " + roll + " School code " + schCode + "Center no " + cntrNo);
                     }
                     this.publish(result);
 
                 }
             }
         } catch (java.net.SocketException | java.net.UnknownHostException | com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException ex) {
-            done();
+
             Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
             ErrorDialog.showError("Sorry :( ! ,Thier was a network Error", ex);
 
-            return currentBatch.getResults();
-
         } catch (Exception ex) {
-            done();
-            Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
-            System.out.println("The page :: " + cbseResult.asText());
-            ErrorDialog.showError(ex.getLocalizedMessage(), ex);
-            return currentBatch.getResults();
 
+            Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("The page :: " + pageHtml);
+            ErrorDialog.showError(ex.getLocalizedMessage(), ex);
         }
-        isRunning = false;
+
         return currentBatch.getResults();
     }
 
     @Override
     protected void process(List<CBSEResult> chunks) {
-        chunks.stream().forEach((newton.resultApi.CBSEResult res) -> {
+        chunks.forEach((newton.resultApi.CBSEResult res) -> {
             app.getInfoLable().setText("Loading ..." + res.getName() + "  " + res.getRegno());
             ResultView pan = new ResultView(res);
             currentBatch.addResultView(pan);
@@ -124,27 +128,10 @@ public class CBSEResultLoader extends SwingWorker<List<CBSEResult>, CBSEResult> 
     protected void done() {
         app.getInfoLable().setText("Loading Finished !");
         app.getInfoLable().setBusy(false);
-        isRunning = false;
+
     }
 
     /**
-     *
-     * @return
-     */
-    public boolean isRunning() {
-        return isRunning;
-    }
-
-    /**
-     *
-     * @param isRunning
-     */
-    public void setRunning(boolean isRunning) {
-        this.isRunning = isRunning;
-    }
-
-    /**
-     *
      * @return
      */
     public BatchView getCurrentBatch() {
@@ -152,11 +139,14 @@ public class CBSEResultLoader extends SwingWorker<List<CBSEResult>, CBSEResult> 
     }
 
     /**
-     *
      * @return
      */
     public App getApp() {
         return app;
+    }
+
+    boolean hasResult(String cbseResult) {
+        return cbseResult != null && !cbseResult.contains("Not Found") && !cbseResult.contains("Please enter valid Roll no");
     }
 
 }

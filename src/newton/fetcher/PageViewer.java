@@ -6,8 +6,10 @@
 package newton.fetcher;
 
 import com.sun.java.swing.plaf.windows.WindowsScrollBarUI;
-import java.awt.Adjustable;
-import java.awt.Color;
+
+import javax.swing.*;
+import javax.swing.text.*;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.io.File;
@@ -18,12 +20,6 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import javax.swing.JScrollBar;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultHighlighter;
-import javax.swing.text.Document;
-import javax.swing.text.Highlighter;
-import javax.swing.text.JTextComponent;
 
 /**
  *
@@ -34,12 +30,12 @@ public class PageViewer extends javax.swing.JFrame {
     /**
      *
      */
-    protected final JScrollBar scrollbar = new JScrollBar(Adjustable.VERTICAL);
+    private final JScrollBar scrollbar = new JScrollBar(Adjustable.VERTICAL);
 
     /**
      *
      */
-    protected final transient Highlighter.HighlightPainter highlightPainter = new DefaultHighlighter.DefaultHighlightPainter(Color.YELLOW);
+    private final transient Highlighter.HighlightPainter highlightPainter = new DefaultHighlighter.DefaultHighlightPainter(Color.YELLOW);
 
     /**
      * Creates new form HTMLViewer
@@ -58,25 +54,40 @@ public class PageViewer extends javax.swing.JFrame {
 
     }
 
-    class MouseListener implements MouseMotionListener {
-
-        @Override
-        public void mouseDragged(MouseEvent e) {
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Wjindows".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(PageViewer.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
 
-        @Override
-        public void mouseMoved(MouseEvent e) {
+        //</editor-fold>
 
-        }
-
-    };
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(() -> new PageViewer().setVisible(true));
+    }
 
     /**
      *
      * @param jtc
      * @param pattern
      */
-    public void setHighlight(JTextComponent jtc, String pattern) {
+    private void setHighlight(JTextComponent jtc, String pattern) {
         Highlighter highlighter = jtc.getHighlighter();
         highlighter.removeAllHighlights();
         Document doc = jtc.getDocument();
@@ -157,7 +168,7 @@ public class PageViewer extends javax.swing.JFrame {
     public void loadText(String Path) throws IOException {
 
         if (new File(Path).exists()) {
-            StringBuilder sb = new StringBuilder("");
+            StringBuilder sb = new StringBuilder();
             Files.lines(new File(Path).toPath()).forEach(line -> sb.append(line).append(String.format("%n")));
             pane.setContentType("text/plain");
             pane.setFont(new java.awt.Font("Consolas", 0, 14));
@@ -321,34 +332,17 @@ public class PageViewer extends javax.swing.JFrame {
 
     }//GEN-LAST:event_searchFieldCaretUpdate
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Wjindows".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(PageViewer.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+    class MouseListener implements MouseMotionListener {
+
+        @Override
+        public void mouseDragged(MouseEvent e) {
         }
-        //</editor-fold>
-        //</editor-fold>
 
-        //</editor-fold>
+        @Override
+        public void mouseMoved(MouseEvent e) {
 
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> {
-            new PageViewer().setVisible(true);
-        });
+        }
+
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

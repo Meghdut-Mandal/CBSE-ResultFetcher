@@ -5,24 +5,19 @@
  */
 package newton.fetcher;
 
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
-import java.awt.geom.AffineTransform;
-import javax.swing.JComponent;
-import javax.swing.JScrollBar;
+import javax.swing.*;
 import javax.swing.plaf.metal.MetalScrollBarUI;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Highlighter;
 import javax.swing.text.JTextComponent;
+import java.awt.*;
+import java.awt.geom.AffineTransform;
 
 /**
  *
  * @author Meghdut Mandal
  */
-public class MetalHighlightScrollBarUI extends MetalScrollBarUI {
+class MetalHighlightScrollBarUI extends MetalScrollBarUI {
 
     private final JTextComponent textArea;
     private Color hiliteColor = Color.RED;
@@ -31,7 +26,7 @@ public class MetalHighlightScrollBarUI extends MetalScrollBarUI {
      *
      * @param textArea
      */
-    protected MetalHighlightScrollBarUI(JTextComponent textArea) {
+    MetalHighlightScrollBarUI(JTextComponent textArea) {
         super();
         this.textArea = textArea;
     }

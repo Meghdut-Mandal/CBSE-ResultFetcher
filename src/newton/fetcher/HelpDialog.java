@@ -19,12 +19,12 @@ package newton.fetcher;
  *
  * @author Meghdut Mandal
  */
-public class HelpDialog extends javax.swing.JDialog {
+class HelpDialog extends javax.swing.JDialog {
 
     /**
      * Creates new form HelpDialog
      */
-    public HelpDialog(java.awt.Frame parent, boolean modal) {
+    private HelpDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
     }

@@ -28,7 +28,7 @@ import java.util.stream.StreamSupport;
  *
  * @author Meghdut Mandal
  */
-public class StreamProgress {
+class StreamProgress {
 
     /**
      *
@@ -50,7 +50,7 @@ public class StreamProgress {
         };
 
         Integer result = stream
-                .map(element -> process(element))
+                .map(StreamProgress::process)
                 .map(progressMapper(progressConsumer))
                 .reduce(0, (a, b) -> a + b);
 

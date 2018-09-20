@@ -7,26 +7,24 @@ package newton.fetcher;
 
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.html.HtmlForm;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.gargoylesoftware.htmlunit.html.HtmlSubmitInput;
-import com.gargoylesoftware.htmlunit.html.HtmlTextArea;
-import com.gargoylesoftware.htmlunit.html.HtmlTextInput;
+import com.gargoylesoftware.htmlunit.html.*;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
-import static java.nio.file.StandardOpenOption.CREATE;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static java.nio.file.StandardOpenOption.CREATE;
+
 /**
  *  *
  * @author Meghdut Mandal
  */
-public class Main {
+class Main {
 
     /**
      *
@@ -61,9 +59,8 @@ public class Main {
     /**
      *
      * @param args
-     * @throws Exception
      */
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         loggToServer("heloo ");
     }
 
@@ -93,9 +90,8 @@ public class Main {
     /**
      *
      * @param args
-     * @throws Exception
      */
-    public static void majin(String[] args) throws Exception {
+    public static void majin(String[] args) {
         App.main(args);
     }
 

@@ -33,17 +33,17 @@ public interface ProcessObserver {
      *
      * @param text
      */
-    public void publishString(String text);
+    void publishString(String text);
 
     /**
      *
      * @param d
      */
-    public void setProgress(double d);
+    void setProgress(double d);
 
     /**
      *
      * @param res
      */
-    public void finished(CBSEResult res);
+    void finished(CBSEResult res);
 }

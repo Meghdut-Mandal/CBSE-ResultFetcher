@@ -5,23 +5,18 @@
  */
 package newton.fetcher;
 
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Insets;
-import java.awt.RenderingHints;
-import java.awt.Shape;
+import javax.swing.*;
+import javax.swing.plaf.basic.BasicProgressBarUI;
+import java.awt.*;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
-import javax.swing.JComponent;
-import javax.swing.plaf.basic.BasicProgressBarUI;
 
 /**
  *
  * @author Meghdut Mandal
  */
-public class ProgressCircleUI extends BasicProgressBarUI {
+class ProgressCircleUI extends BasicProgressBarUI {
 
     @Override
     public Dimension getPreferredSize(JComponent c) {

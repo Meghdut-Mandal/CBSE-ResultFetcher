@@ -19,6 +19,6 @@ package newton.test;
  *
  * @author MICROSOFT
  */
-public class ResultFinder {
+class ResultFinder {
     
 }

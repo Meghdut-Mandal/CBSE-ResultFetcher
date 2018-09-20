@@ -5,20 +5,15 @@
  */
 package newton.fetcher;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import javax.swing.BorderFactory;
-import javax.swing.JFrame;
-import javax.swing.JTable;
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
+import java.awt.*;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -98,7 +93,7 @@ public class TabelSearchRenderer implements TableCellRenderer {
                     highlighter.addHighlight(start, end, highlightPainter);
                 } catch (BadLocationException e) {
                 }
-                findResultView(table).setMatch(true);
+                Objects.requireNonNull(findResultView(table)).setMatch(true);
 
             } else if (txt.toLowerCase().contains(pattern.toLowerCase())) {
 
@@ -109,10 +104,10 @@ public class TabelSearchRenderer implements TableCellRenderer {
                     highlighter.addHighlight(start, end, highlightPainter);
                 } catch (BadLocationException e) {
                 }
-                findResultView(table).setMatch(true);
+                Objects.requireNonNull(findResultView(table)).setMatch(true);
 
             } else {
-                findResultView(table).setMatch(false);
+                Objects.requireNonNull(findResultView(table)).setMatch(false);
 
             }
 

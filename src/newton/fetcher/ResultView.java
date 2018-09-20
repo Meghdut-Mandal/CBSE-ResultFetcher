@@ -6,16 +6,16 @@
 package newton.fetcher;
 
 import newton.resultApi.CBSEResult;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import javax.swing.JTable;
+
+import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
+import java.awt.*;
 
 /**
  *
  * @author Meghdut Mandal
  */
-public class ResultView extends javax.swing.JPanel {
+class ResultView extends javax.swing.JPanel {
 
     @Override
     public void repaint() {
@@ -114,7 +114,11 @@ public class ResultView extends javax.swing.JPanel {
         perInfoPanel = new javax.swing.JPanel();
         perInfTable = new javax.swing.JTable(this.result.getPIRow(),this.result.genPIColNames());
         subInfoPanel = new javax.swing.JPanel();
-        subInfTabel = new javax.swing.JTable(this.result.getSIRow(),this.result.getSIColNames());
+        subInfTabel = new javax.swing.JTable(
+
+                //this.result.getSIRow().toArray()
+                Utility.to2dArray(result.getSIRow())
+                , this.result.getSIColNames().toArray());
 
         setOpaque(false);
 

@@ -5,46 +5,21 @@
  */
 package newton.fetcher;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.Point;
-import java.awt.Toolkit;
+import javax.swing.*;
+import javax.swing.text.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextPane;
-import javax.swing.KeyStroke;
-import javax.swing.WindowConstants;
-import javax.swing.text.AbstractDocument;
-import javax.swing.text.BoxView;
-import javax.swing.text.ComponentView;
-import javax.swing.text.Element;
-import javax.swing.text.IconView;
-import javax.swing.text.LabelView;
-import javax.swing.text.ParagraphView;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.StyledEditorKit;
-import javax.swing.text.View;
-import javax.swing.text.ViewFactory;
 
 /**
  * @author Svetlin Nakov
  */
 @SuppressWarnings("serial")
-public class ErrorDialog extends JDialog {
+class ErrorDialog extends JDialog {
 
     private static final String SHOW_DETAILS_TEXT = "Show Details ...";
     private static final String HIDE_DETAILS_TEXT = "Hide Details";
@@ -74,7 +49,7 @@ public class ErrorDialog extends JDialog {
      * @param errorMessage
      * @param exception
      */
-    public ErrorDialog(String errorMessage, Throwable exception) {
+    private ErrorDialog(String errorMessage, Throwable exception) {
         this.setTitle("Error");
         this.setModal(true);
         this.setResizable(false);
@@ -190,7 +165,7 @@ public class ErrorDialog extends JDialog {
     /**
      * Make the [Escape] key to behave like the [Close] button.
      */
-    public void registerEscapeKey() {
+    private void registerEscapeKey() {
         KeyStroke escapeKeyStroke
                 = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false);
         Action escapeAction = new AbstractAction() {
@@ -278,7 +253,7 @@ class VerticalCenteredEditorKit extends StyledEditorKit {
 
     static class CenteredBoxView extends BoxView {
 
-        public CenteredBoxView(Element elem, int axis) {
+        CenteredBoxView(Element elem, int axis) {
             super(elem, axis);
         }
 

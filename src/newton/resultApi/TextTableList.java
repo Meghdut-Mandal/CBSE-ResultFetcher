@@ -3,6 +3,7 @@ package newton.resultApi;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -42,7 +43,7 @@ public class TextTableList {
      *
      * @param descriptions
      */
-    public TextTableList(String... descriptions) {
+    private TextTableList(String... descriptions) {
         this(descriptions.length, descriptions);
     }
 
@@ -85,7 +86,7 @@ public class TextTableList {
      * @param c
      * @return
      */
-    public TextTableList compareWith(Comparator<String[]> c) {
+    private TextTableList compareWith(Comparator<String[]> c) {
         this.comparator = c;
         return this;
     }
@@ -172,8 +173,8 @@ public class TextTableList {
                     line.append(TLINE);
                 }
             }
-            line.append(CORNER_TR);
-            out.write(line.toString() + String.format("%n", ""));
+            Objects.requireNonNull(line).append(CORNER_TR);
+            out.write(line.toString() + String.format("%n"));
 
             line = null;
         }
@@ -188,9 +189,9 @@ public class TextTableList {
                     line.append(gc(VERTICAL_TSEP));
                 }
             }
-            String part = descriptions[i];
+            StringBuilder part = new StringBuilder(descriptions[i]);
             while (part.length() < tableSizes[i] + spacing) {
-                part += " ";
+                part.append(" ");
             }
             for (int j = 0; j < spacing; j++) {
                 line.append(" ");
@@ -198,9 +199,9 @@ public class TextTableList {
             line.append(part);
         }
         if (ucode) {
-            line.append(gc(VERTICAL_TSEP));
+            Objects.requireNonNull(line).append(gc(VERTICAL_TSEP));
         }
-        out.write(line.toString() + String.format("%n", ""));
+        out.write(Objects.requireNonNull(line).toString() + String.format("%n"));
         out.flush();
 
         // toString vertical seperator
@@ -219,9 +220,9 @@ public class TextTableList {
             }
         }
         if (ucode) {
-            line.append(CROSSING_R);
+            Objects.requireNonNull(line).append(CROSSING_R);
         }
-        out.write(line.toString() + String.format("%n", ""));
+        out.write(Objects.requireNonNull(line).toString() + String.format("%n", ""));
         out.flush();
 
         line = null;
@@ -262,41 +263,41 @@ public class TextTableList {
                         line.append(gc(VERTICAL_BSEP));
                     }
                 }
-                String part = "";
+                StringBuilder part = new StringBuilder();
                 for (int j = 0; j < spacing; j++) {
-                    part += " ";
+                    part.append(" ");
                 }
                 if (strings[i] != null) {
                     switch (aligns[i]) {
                         case LEFT:
-                            part += strings[i];
+                            part.append(strings[i]);
                             break;
                         case RIGHT:
                             for (int j = 0; j < tableSizes[i] - strings[i].length(); j++) {
-                                part += " ";
+                                part.append(" ");
                             }
-                            part += strings[i];
+                            part.append(strings[i]);
                             break;
                         case CENTER:
                             for (int j = 0; j < (tableSizes[i] - strings[i].length()) / 2; j++) {
-                                part += " ";
+                                part.append(" ");
                             }
-                            part += strings[i];
+                            part.append(strings[i]);
                             break;
                     }
                 }
                 while (part.length() < tableSizes[i] + spacing) {
-                    part += " ";
+                    part.append(" ");
                 }
                 for (int j = 0; j < spacing; j++) {
-                    part += " ";
+                    part.append(" ");
                 }
                 line.append(part);
             }
             if (ucode) {
-                line.append(gc(VERTICAL_BSEP));
+                Objects.requireNonNull(line).append(gc(VERTICAL_BSEP));
             }
-            out.write(line.toString() + String.format("%n", ""));
+            out.write(Objects.requireNonNull(line).toString() + String.format("%n", ""));
 
             line = null;
         }
@@ -314,7 +315,7 @@ public class TextTableList {
                     line.append(gc(BLINE));
                 }
             }
-            line.append(CORNER_BR);
+            Objects.requireNonNull(line).append(CORNER_BR);
             out.write(line.toString() + String.format("%n", ""));
         }
         out.flush();
@@ -334,7 +335,7 @@ public class TextTableList {
     /**
      *
      */
-    public static enum EnumAlignment {
+    public enum EnumAlignment {
 
         /**
          *

@@ -5,9 +5,9 @@
  */
 package newton.test;
 
+import javax.swing.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
-import javax.swing.JFrame;
 
 /**
  *
@@ -35,7 +35,7 @@ public class MoveListner extends MouseMotionAdapter implements java.awt.event.Mo
      *
      * @param frame
      */
-    public MoveListner(JFrame frame) {
+    private MoveListner(JFrame frame) {
         this.frame = frame;
     }
 

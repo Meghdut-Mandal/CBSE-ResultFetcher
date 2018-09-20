@@ -6,32 +6,15 @@
 package newton.resultApi;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.Vector;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
- *
  * @author Meghdut Mandal
  */
 @SuppressWarnings("UseOfObsoleteCollectionType")
 public class CBSEResult {
-
-    /**
-     *
-     * @param args
-     * @throws IOException
-     */
-    public static void main(String[] args) throws IOException {
-
-        File fi = new File("E:\\CBSE\\HSMSCBSE2016\\");
-        String totalWise = HtmlUnitClient.totalWise(Arrays.asList(fi.listFiles()), null);
-        System.out.println(totalWise);
-    }
 
     private String name;
     private String regno;
@@ -41,10 +24,8 @@ public class CBSEResult {
     ////6625902
     // sx 08423
     // centr 6219
-    private List<Subject> subjects;
-
+    private List<newton.resultApi.Subject> subjects;
     /**
-     *
      * @param name
      * @param regno
      * @param status
@@ -56,15 +37,15 @@ public class CBSEResult {
     }
 
     /**
-     *
      * @param perInfo
      * @param subjMarks
      */
     public CBSEResult(List<List<String>> perInfo, List<List<String>> subjMarks) {
         this.perInfo = perInfo;
+
         this.subjMarks = subjMarks;
         name = null;
-        this.perInfo.stream().forEach((s) -> {
+        this.perInfo.forEach((s) -> {
             if (s.get(0).trim().contains("Name") && name == null) {
                 name = s.get(1);
             }
@@ -76,7 +57,63 @@ public class CBSEResult {
     }
 
     /**
-     *
+     * @param args
+     */
+    public static void main(String[] args) {
+
+        File fi = new File("E:\\CBSE\\HSMSCBSE2016\\");
+        HtmlUnitClient client = new HtmlUnitClient();
+        String totalWise = client.totalWise(Arrays.asList(Objects.requireNonNull(fi.listFiles())), null);
+        System.out.println(totalWise);
+    }
+
+    /**
+     * @param resList
+     * @return
+     */
+    public static String totalWise(List<CBSEResult> resList) {
+        TextTableList tableList = new TextTableList(4, "Roll Number", "Name", "Total", "Percentage");
+        resList.
+                stream().
+                sorted((res1, res2) -> res2.getBestof5() - res1.getBestof5()).
+                forEach(res -> tableList
+                        .addRow(res.getRegno(), res.getName(), res.getBestof5() + "", (res.getBestof5() / 5.00) + ""));
+
+        return tableList.toString();
+    }
+
+    /**
+     * @param resList
+     * @return
+     */
+    public static String subjectWise(List<CBSEResult> resList) {
+        List<Subject> sublist = new java.util.ArrayList<>();
+        resList.parallelStream().map(CBSEResult::getMainSubjects).forEach(sublist::addAll);
+
+        Map<String, List<Subject>> subjectsTable = sublist.parallelStream().collect(Collectors
+                                                                                            .groupingBy(Subject::getName));
+
+        TextTableList tableList = new TextTableList(3, "Roll Number", "Student Name", "Marks");
+
+        subjectsTable.keySet().stream().map(subjectsTable::get)
+                .forEachOrdered(subs -> {
+                    Subject get = subs.get(0);
+                    tableList.addRow("---------", "-----------", "---------");
+                    tableList.addRow("Subject :", get.getName(), "");
+
+                    subs.parallelStream().
+                            sorted((a, b) -> b.getMarks() - a.getMarks()).
+                            forEachOrdered(sub -> {
+                                CBSEResult res = sub.getRes();
+                                tableList.addRow(res.getRegno(), res.getName(), sub.getMarks() + "");
+
+                            });
+                });
+        return tableList.toString();
+
+    }
+
+    /**
      * @return
      */
     public String getName() {
@@ -84,7 +121,6 @@ public class CBSEResult {
     }
 
     /**
-     *
      * @param name
      */
     public void setName(String name) {
@@ -92,7 +128,6 @@ public class CBSEResult {
     }
 
     /**
-     *
      * @return
      */
     public String getRegno() {
@@ -100,7 +135,6 @@ public class CBSEResult {
     }
 
     /**
-     *
      * @param regno
      */
     public void setRegno(String regno) {
@@ -108,7 +142,6 @@ public class CBSEResult {
     }
 
     /**
-     *
      * @param status
      */
     public void setStatus(String status) {
@@ -116,15 +149,6 @@ public class CBSEResult {
     }
 
     /**
-     *
-     * @param subjects
-     */
-    public void setSubjects(List<Subject> subjects) {
-        this.subjects = subjects;
-    }
-
-    /**
-     *
      * @return
      */
     public List<List<String>> getPerInfo() {
@@ -132,7 +156,6 @@ public class CBSEResult {
     }
 
     /**
-     *
      * @param perInfo
      */
     public void setPerInfo(List<List<String>> perInfo) {
@@ -140,15 +163,13 @@ public class CBSEResult {
     }
 
     /**
-     *
      * @return
      */
-    public List<List<String>> getSubjMarks() {
+    private List<List<String>> getSubjMarks() {
         return subjMarks;
     }
 
     /**
-     *
      * @param subjMarks
      */
     public void setSubjMarks(List<List<String>> subjMarks) {
@@ -156,7 +177,6 @@ public class CBSEResult {
     }
 
     /**
-     *
      * @return
      */
     public int getBestof5() {
@@ -170,9 +190,7 @@ public class CBSEResult {
         } else {
             //  System.err.println(this);
         }
-        mainSubjects.sort((a, b) -> {
-            return b.getMarks() - a.getMarks();
-        });
+        mainSubjects.sort((a, b) -> b.getMarks() - a.getMarks());
         try {
             for (int i = 0; i < 4; i++) {
                 if (!mainSubjects.get(i).getName().equals("ENGLISH CORE")) {
@@ -194,7 +212,6 @@ public class CBSEResult {
     }
 
     /**
-     *
      * @param name
      * @return
      */
@@ -212,7 +229,6 @@ public class CBSEResult {
     }
 
     /**
-     *
      * @return
      */
     public List<Subject> getSubjects() {
@@ -220,18 +236,24 @@ public class CBSEResult {
     }
 
     /**
-     *
+     * @param subjects
+     */
+    public void setSubjects(List<Subject> subjects) {
+        this.subjects = subjects;
+    }
+
+    /**
      * @return
      */
     public List<Subject> getMainSubjects() {
 
         List<Subject> subjs = new java.util.ArrayList<>();
-        this.getSubjects().stream().forEach((sub) -> {
+        this.getSubjects().forEach((sub) -> {
             String name1 = sub.getName();
             if (name1 != null) {
                 List<String> excludeList = Arrays.asList("WORK EXPERIENCE", "PHY & HEALTH EDUCA", "GENERAL STUDIES", "Additional Subject");
 
-                if (!excludeList.stream().anyMatch(name1::contains)) {
+                if (excludeList.stream().noneMatch(name1::contains)) {
                     subjs.add(sub);
                 }
             }
@@ -243,25 +265,24 @@ public class CBSEResult {
 
     private void processSubject() {
         subjects = new java.util.ArrayList<>();
-        System.out.println("subjects " + subjects);
         int subNameIndex = 0;
         int SubMarksIndex = 0;
         int SubGradeIndex = 0;
 
-        for (int i = 0; i < this.getSIColNames().size(); i++) {
-            if (getSIColNames().get(i).contains("SUB NAME")) {
+        List<String> siColNames = this.getSIColNames();
+        for (int i = 0; i < siColNames.size(); i++) {
+            if (siColNames.get(i).contains("SUB NAME")) {
                 subNameIndex = i;
-            } else if (getSIColNames().get(i).contains("MARKS")) {
+            } else if (siColNames.get(i).contains("MARKS")) {
                 SubMarksIndex = i;
-            } else if (getSIColNames().get(i).contains("GRADE")) {
+            } else if (siColNames.get(i).contains("GRADE")) {
                 SubGradeIndex = i;
             }
         }
-        //  System.out.println("@indexes" + subNameIndex + " +" + SubMarksIndex + "+" + SubGradeIndex);
-        ol:
-        for (int i = 1; i < getSubjMarks().size(); i++) {
+        final List<List<String>> subjMarks = getSubjMarks();
+        for (int i = 1; i < subjMarks.size(); i++) {
 
-            List<String> singleSubject = getSubjMarks().get(i);
+            List<String> singleSubject = subjMarks.get(i);
             Subject subject = new Subject(this);
             for (int j = 0; j < singleSubject.size(); j++) {
 
@@ -291,116 +312,50 @@ public class CBSEResult {
     }
 
     /**
-     *
      * @return
      */
     public Vector<String> genPIColNames() {
 
-        //System.out.println(perInfo);
-        Vector<String> columnNames = new Vector<>();
-        perInfo.stream().forEach((row) -> {
-            columnNames.add(row.get(0).trim());
-        });
-        //System.out.println(Arrays.toString(colNames));
-        return columnNames;
+        return perInfo.stream()
+                .map(row -> row.get(0).trim())
+                .collect(Collectors.toCollection(Vector::new));
     }
 
     /**
-     *
      * @return
      */
     public Vector<Vector<String>> getPIRow() {
         Vector<Vector<String>> rowData = new Vector<>();
 
-        Vector<String> row = new Vector<>();
-        perInfo.stream().forEach((row11) -> {
-            row.add(row11.get(1).trim());
-        });
-        rowData.add(row);
-        //  System.out.println(row);
+        Vector<String> rows = new Vector<>();
+        perInfo.forEach((row11) -> rows.add(row11.get(1).trim()));
+        rowData.add(rows);
         return rowData;
 
     }
 
     /**
-     *
      * @return
      */
-    public Vector<String> getSIColNames() {
-        Vector<String> columnNames = null;
+    public List<String> getSIColNames() {
         try {
-            columnNames = new Vector<>();
-            this.subjMarks.get(0).stream().map(str -> str.trim()).forEach(columnNames::add);
+            return this.subjMarks.get(0).stream().map(String::trim).collect(Collectors.toList());
+
         } catch (java.lang.IndexOutOfBoundsException e) {
-            //System.out.println(this);
             return null;
         }
-        return columnNames;
     }
 
     /**
-     *
      * @return
      */
-    public Vector<Vector<String>> getSIRow() {
-        Vector<Vector<String>> rowData = new Vector<>();
-        for (int i = 1; i < subjMarks.size(); i++) {
-            Vector<String> rowvec = new Vector<>();
-            subjMarks.get(i).stream().map(str -> str.trim()).forEachOrdered(rowvec::add);
-            rowData.add(rowvec);
-
-        }
+    public List<List<String>> getSIRow() {
+        List<List<String>> rowData = IntStream.range(1, subjMarks.size())
+                .mapToObj(i -> subjMarks.get(i).stream()
+                        .map(String::trim)
+                        .collect(Collectors.toCollection(ArrayList::new)))
+                .collect(Collectors.toList());
         return rowData;
-    }
-
-    /**
-     *
-     * @param resList
-     * @return
-     */
-    public static String totalWise(List<CBSEResult> resList) {
-        TextTableList tableList = new TextTableList(4, "Roll Number", "Name", "Total", "Percentage");
-        resList.
-                stream().
-                sorted((res1, res2) -> res2.getBestof5() - res1.getBestof5()).
-                forEach(res -> tableList
-                        .addRow(res.getRegno(), res.getName(), res.getBestof5() + "", (res.getBestof5() / 5.00) + ""));
-
-        return tableList.toString();
-    }
-
-    /**
-     *
-     * @param resList
-     * @return
-     */
-    public static String subjectWise(List<CBSEResult> resList) {
-        List<Subject> sublist = new java.util.ArrayList<>();
-        resList.parallelStream().map(res -> res.getMainSubjects()).forEach(sublist::addAll);
-
-        Map<String, List<Subject>> subjectsTable = sublist.parallelStream().collect(Collectors
-                .groupingBy(Subject::getName));
-
-        TextTableList tableList = new TextTableList(3, "Roll Number", "Student Name", "Marks");
-
-        subjectsTable.keySet().stream().map((key) -> subjectsTable.get(key))
-                .forEachOrdered(subs -> {
-                    Subject get = subs.get(0);
-                    tableList.addRow("---------", "-----------", "---------");
-                    tableList.addRow("Subject :", get.getName(), "");
-
-                    subs.parallelStream().
-                    sorted((a, b) -> {
-                        return b.getMarks() - a.getMarks();
-                    }).
-                    forEachOrdered(sub -> {
-                        CBSEResult res = sub.getRes();
-                        tableList.addRow(res.getRegno(), res.getName(), sub.getMarks() + "");
-
-                    });
-                });
-        return tableList.toString();
-
     }
 
 }

@@ -5,13 +5,11 @@
  */
 package newton.resultApi;
 
-import java.awt.AWTException;
-import java.awt.Robot;
-import java.awt.Toolkit;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.KeyEvent;
-import javax.swing.JOptionPane;
 
 //  Dav Durgapur Roll 6625902 School Code :=08423 Center Number :-6219
 //  HSMS Durgapur roll 6622710 School Cde :=09909 Center Number := 6213
@@ -24,11 +22,11 @@ import javax.swing.JOptionPane;
  *
  * @author MICROSOFT
  */
-public class RobotClient {
+class RobotClient {
 
-    static Robot robot;
+    private static Robot robot;
 
-    private static void type(String text) throws AWTException, InterruptedException {
+    private static void type(String text) throws InterruptedException {
 
         StringSelection stringSelection = new StringSelection(text);
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();

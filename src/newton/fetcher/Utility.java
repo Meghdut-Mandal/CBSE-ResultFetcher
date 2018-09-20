@@ -1,19 +1,13 @@
 package newton.fetcher;
 
-import java.awt.Component;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
+import java.awt.*;
+import java.io.*;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileFilter;
+import java.util.Objects;
 
 /**
  * A file utility for various file related actions.
@@ -21,45 +15,21 @@ import javax.swing.filechooser.FileFilter;
  * @author Markus Ostman
  * @author Michael Kolling
  */
-public class FileUtility {
+public class Utility {
 
     /**
-     *
-     * @return
+     * Copy (recursively) a whole directory.
      */
-    public static JFileChooser getDirectoryChooser() {
-        return getMultipleFileChooser();
-    }
+    private static final int NO_ERROR = 0;
 
     private static JFileChooser getPackageChooser() {
         return getMultipleFileChooser();
     }
 
     /**
-     * Enum used to indicate file write capabilities on Windows.
      *
-     * @author polle
-     * @see FileUtility#getVistaWriteCapabilities(File)
      */
-    public enum WriteCapabilities {
-
-        /**
-         *
-         */
-        READ_ONLY,
-        /**
-         *
-         */
-        NORMAL_WRITE,
-        /**
-         *
-         */
-        VIRTUALIZED_WRITE,
-        /**
-         *
-         */
-        UNKNOWN
-    };
+    private static final int SRC_NOT_DIRECTORY = 2;
 
     private static final String sourceSuffix = ".java";
 
@@ -104,7 +74,7 @@ public class FileUtility {
      * @return a File array containing the selected files
      */
     public static File[] getMultipleFiles(Component parent, String title,
-            String buttonLabel, FileFilter filter) {
+                                          String buttonLabel, FileFilter filter) {
         JFileChooser newMultiChooser = getMultipleFileChooser();
 
         newMultiChooser.setDialogTitle(title);
@@ -129,12 +99,61 @@ public class FileUtility {
     }
 
     /**
+     *
+     */
+    private static final int COPY_ERROR = 3;
+
+    /**
+     *
+     * @param parent
+     * @param title
+     * @param buttonLabel
+     * @param filter
+     * @param rememberDir
+     * @return
+     */
+    public static String getFileName(Component parent, String title,
+                                     String buttonLabel, FileFilter filter,
+                                     boolean rememberDir) {
+        File file = getFile(parent, title, buttonLabel, filter, rememberDir);
+        if (file == null) {
+            return null;
+        } else {
+            return file.getPath();
+        }
+    }
+
+    /**
+     *
+     * @return
+     */
+    public static FileFilter getJavaSourceFilter() {
+        return new JavaSourceFilter();
+    }
+
+    /**
+     *
+     */
+    private static final int DEST_EXISTS_NOT_DIR = 4;
+    /**
+     *
+     */
+    private static final int DEST_EXISTS_NON_EMPTY = 5;
+
+    /**
+     * @return
+     */
+    private static JFileChooser getDirectoryChooser() {
+        return getMultipleFileChooser();
+    }
+
+    /**
      * Get a file name from the user, using a file selection dialogue. If
      * cancelled or an invalid name was specified, return null.
      */
-    public static File getFile(Component parent, String title,
-            String buttonLabel, FileFilter filter,
-            boolean rememberDir) {
+    private static File getFile(Component parent, String title,
+                                String buttonLabel, FileFilter filter,
+                                boolean rememberDir) {
         JFileChooser newChooser = getFileChooser(false, filter);
 
         newChooser.setDialogTitle(title);
@@ -153,31 +172,15 @@ public class FileUtility {
     }
 
     /**
-     *
-     * @param parent
-     * @param title
-     * @param buttonLabel
-     * @param filter
-     * @param rememberDir
-     * @return
+     * Copy file 'source' to file 'dest'. The source file must exist, the
+     * destination file will be created. Returns true if successful.
      */
-    public static String getFileName(Component parent, String title,
-            String buttonLabel, FileFilter filter,
-            boolean rememberDir) {
-        File file = getFile(parent, title, buttonLabel, filter, rememberDir);
-        if (file == null) {
-            return null;
-        } else {
-            return file.getPath();
-        }
-    }
+    public static void copyFile(String source, String dest)
+            throws IOException {
+        File srcFile = new File(source);
+        File destFile = new File(dest);
 
-    /**
-     *
-     * @return
-     */
-    public static FileFilter getJavaSourceFilter() {
-        return new JavaSourceFilter();
+        copyFile(srcFile, destFile);
     }
 
     /**
@@ -193,7 +196,7 @@ public class FileUtility {
      *
      * @return A file chooser
      */
-    public static JFileChooser getFileChooser(boolean directoriesOnly, FileFilter filter) {
+    private static JFileChooser getFileChooser(boolean directoriesOnly, FileFilter filter) {
         JFileChooser newChooser;
 
         if (directoriesOnly) {
@@ -214,7 +217,7 @@ public class FileUtility {
     /**
      * return a file chooser for choosing any file (default behaviour)
      */
-    public static JFileChooser getFileChooser() {
+    private static JFileChooser getFileChooser() {
         if (fileChooser == null) {
             fileChooser = new JFileChooser();
         }
@@ -226,7 +229,7 @@ public class FileUtility {
      * return a file chooser for choosing any directory (default behaviour) that
      * is allows selection of multiple files
      */
-    public static JFileChooser getMultipleFileChooser() {
+    private static JFileChooser getMultipleFileChooser() {
         if (multiFileChooser == null) {
             multiFileChooser = new JFileChooser();
         }
@@ -234,44 +237,11 @@ public class FileUtility {
         return multiFileChooser;
     }
 
-    private static class JavaSourceFilter extends FileFilter {
-
-        /**
-         * This method only accepts files that are Java source files. Whether a
-         * file is a Java source file is determined by the fact that its
-         * filename ends with ".java".
-         */
-        public boolean accept(File pathname) {
-            if (pathname.isDirectory()
-                    || pathname.getName().endsWith(sourceSuffix)) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-        public String getDescription() {
-            return "Java Source";
-        }
-    }
-
-    /**
-     * Copy file 'source' to file 'dest'. The source file must exist, the
-     * destination file will be created. Returns true if successful.
-     */
-    public static void copyFile(String source, String dest)
-            throws IOException {
-        File srcFile = new File(source);
-        File destFile = new File(dest);
-
-        copyFile(srcFile, destFile);
-    }
-
     /**
      * Copy file 'srcFile' to file 'destFile'. The source file must exist, the
      * destination file will be created. Returns true if successful.
      */
-    public static void copyFile(File srcFile, File destFile)
+    private static void copyFile(File srcFile, File destFile)
             throws IOException {
         // check whether source and dest are the same
         if (srcFile.equals(destFile)) {
@@ -298,7 +268,7 @@ public class FileUtility {
     /**
      * Copy stream 'in' to stream 'out'.
      */
-    public static void copyStream(InputStream in, OutputStream out)
+    private static void copyStream(InputStream in, OutputStream out)
             throws IOException {
         for (int c; (c = in.read()) != -1;) {
             out.write(c);
@@ -306,37 +276,12 @@ public class FileUtility {
     }
 
     /**
-     * Copy (recursively) a whole directory.
-     */
-    public static final int NO_ERROR = 0;
-
-    /**
-     *
-     */
-    public static final int SRC_NOT_DIRECTORY = 2;
-
-    /**
-     *
-     */
-    public static final int COPY_ERROR = 3;
-
-    /**
-     *
-     */
-    public static final int DEST_EXISTS_NOT_DIR = 4;
-
-    /**
-     *
-     */
-    public static final int DEST_EXISTS_NON_EMPTY = 5;
-
-    /**
      *
      * @param srcFile
      * @param destFile
      * @return
      */
-    public static int copyDirectory(File srcFile, File destFile) {
+    private static int copyDirectory(File srcFile, File destFile) {
         if (!srcFile.isDirectory()) {
             return SRC_NOT_DIRECTORY;
         }
@@ -347,7 +292,7 @@ public class FileUtility {
 
         // It's okay if it exists ,provided it is empty:
         if (destFile.exists()) {
-            if (destFile.list().length > 0) {
+            if (Objects.requireNonNull(destFile.list()).length > 0) {
                 return DEST_EXISTS_NON_EMPTY;
             }
         } else {
@@ -357,7 +302,7 @@ public class FileUtility {
         }
 
         String[] dir = srcFile.list();
-        for (int i = 0; i < dir.length; i++) {
+        for (int i = 0; i < Objects.requireNonNull(dir).length; i++) {
             //String srcName = source + File.separator + dir[i];
             File file = new File(srcFile, dir[i]);
             if (file.isDirectory()) {
@@ -374,6 +319,90 @@ public class FileUtility {
             }
         }
         return NO_ERROR;
+    }
+
+    private static File[] actualRecursiveCopyFile(File srcDir, File destDir) {
+        // remember every file which we don't successfully copy
+        List<File> failed = new ArrayList<File>();
+
+        // check whether source and dest are the same
+        if (srcDir.getAbsolutePath().equals(destDir.getAbsolutePath())) {
+            return null;
+        }
+
+        if (!srcDir.isDirectory() || !destDir.isDirectory()) {
+            throw new IllegalArgumentException();
+        }
+
+        // get all entities in the source directory
+        File[] files = srcDir.listFiles();
+
+        for (int i = 0; i < Objects.requireNonNull(files).length; i++) {
+            // handle directories by recursively copying
+            if (files[i].isDirectory()) {
+
+                File newDir = new File(destDir, files[i].getName());
+
+                newDir.mkdir();
+
+                if (newDir.isDirectory()) {
+                    actualRecursiveCopyFile(files[i], newDir);
+                } else {
+                    failed.add(files[i]);
+                }
+            } else if (files[i].isFile()) {
+                // handle all other files
+                File newFile = new File(destDir, files[i].getName());
+
+                if (!newFile.exists()) {
+                    try {
+                        copyFile(files[i], newFile);
+                    } catch (IOException ioe) {
+                        failed.add(files[i]);
+                    }
+                } else {
+                    failed.add(files[i]);
+                }
+            }
+        }
+
+        if (failed.size() > 0) {
+            return failed.toArray(new File[0]);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Find a file with a given extension in a given directory or any
+     * subdirectory. Returns just one randomly selected file with that
+     * extension.
+     *
+     * @return a file with the given extension in the given directory, or 'null'
+     * if such a file cannot be found.
+     */
+    private static File findFile(File startDir, String suffix) {
+        File[] files = startDir.listFiles();
+
+        // look for files here
+        for (int i = 0; i < Objects.requireNonNull(files).length; i++) {
+            if (files[i].isFile()) {
+                if (files[i].getName().endsWith(suffix)) {
+                    return files[i];
+                }
+            }
+        }
+
+        // if we didn't find one, search subdirectories
+        for (int i = 0; i < files.length; i++) {
+            if (files[i].isDirectory()) {
+                File found = findFile(files[i], suffix);
+                if (found != null) {
+                    return found;
+                }
+            }
+        }
+        return null;
     }
 
     /**
@@ -404,88 +433,42 @@ public class FileUtility {
         return actualRecursiveCopyFile(srcDir, destDir);
     }
 
-    private static File[] actualRecursiveCopyFile(File srcDir, File destDir) {
-        // remember every file which we don't successfully copy
-        List<File> failed = new ArrayList<File>();
+    /**
+     * Delete a directory recursively. This method will delete all files and
+     * subdirectories in any directory without asking questions. Use with care.
+     *
+     * @param directory The directory that will be deleted.
+     *
+     */
+    private static void deleteDir(File directory) {
+        File[] fileList = directory.listFiles();
 
-        // check whether source and dest are the same
-        if (srcDir.getAbsolutePath().equals(destDir.getAbsolutePath())) {
-            return null;
-        }
+        //If it is a file or an empty directory, delete
+        if (fileList == null || Array.getLength(fileList) == 0) {
+            try {
+                directory.delete();
+            } catch (SecurityException se) {
+                ErrorDialog.showError("Trouble deleting: " + directory + se);
 
-        if (!srcDir.isDirectory() || !destDir.isDirectory()) {
-            throw new IllegalArgumentException();
-        }
-
-        // get all entities in the source directory
-        File[] files = srcDir.listFiles();
-
-        for (int i = 0; i < files.length; i++) {
-            // handle directories by recursively copying
-            if (files[i].isDirectory()) {
-
-                File newDir = new File(destDir, files[i].getName());
-
-                newDir.mkdir();
-
-                if (newDir.isDirectory()) {
-                    actualRecursiveCopyFile(files[i], newDir);
-                } else {
-                    failed.add(files[i]);
-                }
-            } else if (files[i].isFile()) {
-                // handle all other files
-                File newFile = new File(destDir, files[i].getName());
-
-                if (!newFile.exists()) {
-                    try {
-                        copyFile(files[i], newFile);
-                    } catch (IOException ioe) {
-                        failed.add(files[i]);
-                    }
-                } else {
-                    failed.add(files[i]);
-                }
             }
-        }
-
-        if (failed.size() > 0) {
-            return (File[]) failed.toArray(new File[0]);
         } else {
-            return null;
+            //delete all subdirectories
+            for (int i = 0; i < Array.getLength(fileList); i++) {
+                deleteDir(fileList[i]);
+            }
+            //then delete the directory (when it is empty)
+            try {
+                directory.delete();
+            } catch (SecurityException se) {
+                ErrorDialog.showError("Trouble deleting: ");
+            }
         }
     }
 
-    /**
-     * Find a file with a given extension in a given directory or any
-     * subdirectory. Returns just one randomly selected file with that
-     * extension.
-     *
-     * @return a file with the given extension in the given directory, or 'null'
-     * if such a file cannot be found.
-     */
-    public static File findFile(File startDir, String suffix) {
-        File[] files = startDir.listFiles();
-
-        // look for files here
-        for (int i = 0; i < files.length; i++) {
-            if (files[i].isFile()) {
-                if (files[i].getName().endsWith(suffix)) {
-                    return files[i];
-                }
-            }
-        }
-
-        // if we didn't find one, search subdirectories
-        for (int i = 0; i < files.length; i++) {
-            if (files[i].isDirectory()) {
-                File found = findFile(files[i], suffix);
-                if (found != null) {
-                    return found;
-                }
-            }
-        }
-        return null;
+    public static Object[][] to2dArray(List<List<String>> lists) {
+        return lists.stream()
+                .map(l -> l.stream().toArray(String[]::new))
+                .toArray(String[][]::new);
     }
 
     /**
@@ -516,35 +499,28 @@ public class FileUtility {
     }
 
     /**
-     * Delete a directory recursively. This method will delete all files and
-     * subdirectories in any directory without asking questions. Use with care.
+     * Enum used to indicate file write capabilities on Windows.
      *
-     * @param directory The directory that will be deleted.
-     *
+     * @author polle
      */
-    public static void deleteDir(File directory) {
-        File[] fileList = directory.listFiles();
+    public enum WriteCapabilities {
 
-        //If it is a file or an empty directory, delete
-        if (fileList == null || Array.getLength(fileList) == 0) {
-            try {
-                directory.delete();
-            } catch (SecurityException se) {
-                ErrorDialog.showError("Trouble deleting: " + directory + se);
-
-            }
-        } else {
-            //delete all subdirectories
-            for (int i = 0; i < Array.getLength(fileList); i++) {
-                deleteDir(fileList[i]);
-            }
-            //then delete the directory (when it is empty)
-            try {
-                directory.delete();
-            } catch (SecurityException se) {
-                ErrorDialog.showError("Trouble deleting: ");
-            }
-        }
+        /**
+         *
+         */
+        READ_ONLY,
+        /**
+         *
+         */
+        NORMAL_WRITE,
+        /**
+         *
+         */
+        VIRTUALIZED_WRITE,
+        /**
+         *
+         */
+        UNKNOWN
     }
 
     /**
@@ -567,5 +543,23 @@ public class FileUtility {
 
         return filePath;
     }
+
+    private static class JavaSourceFilter extends FileFilter {
+
+        /**
+         * This method only accepts files that are Java source files. Whether a
+         * file is a Java source file is determined by the fact that its
+         * filename ends with ".java".
+         */
+        public boolean accept(File pathname) {
+            return pathname.isDirectory()
+                    || pathname.getName().endsWith(sourceSuffix);
+        }
+
+        public String getDescription() {
+            return "Java Source";
+        }
+    }
+
 
 }

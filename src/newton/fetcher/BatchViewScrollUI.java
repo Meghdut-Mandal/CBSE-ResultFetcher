@@ -6,20 +6,15 @@
 package newton.fetcher;
 
 import com.sun.java.swing.plaf.windows.WindowsScrollBarUI;
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
-import javax.swing.JComponent;
-import javax.swing.JScrollBar;
-import javax.swing.JScrollPane;
+
+import javax.swing.*;
+import java.awt.*;
 
 /**
  *
  * @author Meghdut Mandal
  */
-public class BatchViewScrollUI extends WindowsScrollBarUI {
+class BatchViewScrollUI extends WindowsScrollBarUI {
 
     private BatchView view;
     private Color hiliteColor = Color.RED;

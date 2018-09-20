@@ -15,26 +15,29 @@
  */
 package newton.scrapper;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import static java.nio.file.StandardOpenOption.APPEND;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import newton.resultApi.HtmlUnitClient;
 import newton.resultApi.OkHttpClient;
+import newton.resultApi.ResultClient;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static java.nio.file.StandardOpenOption.APPEND;
 
 /**
  *
  * @author Nitin
  */
-public class Results2017 {
+class Results2017 {
 
     private static boolean save(File affFolder, String aff, String schCode, String cntrCode, String roll) throws IOException {
-        OkHttpClient f = new OkHttpClient();
+        ResultClient f = new OkHttpClient();
         //6622397;6622457
         // HtmlPage hj = f.getCBSE16Result("6620110", "09909");
 
@@ -52,7 +55,7 @@ public class Results2017 {
                 java.io.FileWriter wr = new java.io.FileWriter(output);
                 Document doc = Jsoup.parse(page);
                 Elements elements = doc.select("table");
-                elements.stream().forEach((fg) -> {
+                elements.forEach((fg) -> {
                     if (fg.text().contains("Roll No") || fg.text().contains("SUB CODE")) {
                         try {
                             wr.write(fg.toString()

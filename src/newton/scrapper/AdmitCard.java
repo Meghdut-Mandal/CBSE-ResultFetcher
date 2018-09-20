@@ -6,6 +6,7 @@ import java.io.Serializable;
  *
  * @author MICROSOFT
  */
+@SuppressWarnings("ALL")
 public class AdmitCard implements Serializable {
 
     private static final long serialVersionUID = -2678313044746846625L;
@@ -48,6 +49,7 @@ public class AdmitCard implements Serializable {
      *
      * @return
      */
+    @SuppressWarnings("JavaDoc")
     public String getImage() {
         return this.image;
     }

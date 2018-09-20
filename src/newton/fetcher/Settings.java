@@ -5,23 +5,23 @@
  */
 package newton.fetcher;
 
+import javax.swing.*;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 
 /**
  *
  * @author Meghdut Mandal
  */
-public class Settings extends javax.swing.JDialog {
+class Settings extends javax.swing.JDialog {
 
     java.util.Properties props;
 
     /**
      * Creates new form Settings
      */
-    public Settings(java.awt.Frame parent, boolean modal) {
+    private Settings(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
         defValueYearItemStateChanged(null);
@@ -267,14 +267,14 @@ public class Settings extends javax.swing.JDialog {
 
     private void defValueYearItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_defValueYearItemStateChanged
 
-        int year = Integer.parseInt(defValueYear.getSelectedItem().toString());
+        int year = Integer.parseInt(Objects.requireNonNull(defValueYear.getSelectedItem()).toString());
         schCodeField.setEnabled(year >= 2016);
         centerNoField.setEnabled(year >= 2017);
 
     }//GEN-LAST:event_defValueYearItemStateChanged
 
     private void siteyearItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_siteyearItemStateChanged
-        int year = Integer.parseInt(this.siteyear.getSelectedItem().toString());
+        int year = Integer.parseInt(Objects.requireNonNull(this.siteyear.getSelectedItem()).toString());
 
     }//GEN-LAST:event_siteyearItemStateChanged
 

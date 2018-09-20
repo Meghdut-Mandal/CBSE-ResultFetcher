@@ -17,19 +17,6 @@ package newton.scrapper;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.IntStream;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -39,14 +26,24 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.*;
+import java.nio.file.Files;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.IntStream;
+
 /**
  *
  * @author Meghdut Mandal
  */
-public class AdmitCardProber {
+class AdmitCardProber {
 
     private static File folder = new File("ResultScraper\\ac\\");
-    private static String postUrl = "http://cnvg.in/cbseapi/detail_api.php";// put in your url
+    private static String postUrl = "http://cnvg.in/cbseapi/detail_api.php";
 
     /**
      *
@@ -55,11 +52,11 @@ public class AdmitCardProber {
      * @return
      */
     public static String padNumber(int dig, int num) {
-        String numb = "";
+        StringBuilder numb = new StringBuilder();
         for (int i = 1; i < dig - Math.log10(num); i++) {
-            numb += "0";
+            numb.append("0");
         }
-        return numb + num;
+        return numb.toString() + num;
     }
 
     private static void saveAdmitcard(AdmitCard card) {
@@ -93,11 +90,15 @@ public class AdmitCardProber {
 
     }
 
+    public static void main(String[] args) {
+        System.out.println("The out " + lookUp("2117223", "10"));
+    }
+
+
     /**
-     *
      * @param args
      */
-    public static void main(String[] args) {
+    public static void maind(String[] args) {
         System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism", "4");
         List<Integer> ch = Arrays.asList(
                 16, 17, 18, 19, 21, 26, 27, 28, 29, 36, 37, 38, 39, 46, 47, 48, 49, 56, 57, 58, 59,
@@ -114,11 +115,11 @@ public class AdmitCardProber {
         return IntStream
                 .rangeClosed(0, (int) Math.pow(10, 7 - dig) - 1)
                 .filter(num -> num % 497 == 0)
-                .mapToObj((i) -> ch + padNumber(dig, i))
+                .mapToObj((i) -> String.format("%d%s", ch, padNumber(dig, i)))
                 .parallel()
                 .filter(AdmitCardProber::doesnotExist)
-                .map((genroll) -> lookUp(genroll, "12"))
-                .filter(obj -> obj.equals(obj))
+                .map((genRoll) -> lookUp(genRoll, "12"))
+                .filter(Objects::nonNull)
                 .peek(AdmitCardProber::saveAdmitcard)
                 .anyMatch(obj -> !(obj instanceof NullAdmitCard));
 
@@ -135,7 +136,7 @@ public class AdmitCardProber {
                 .filter(AdmitCardProber::doesnotExist)
                 //.forEach(System.out::println);
                 .map((genroll) -> lookUp(genroll, "12"))
-                .filter(obj -> obj != null)
+                .filter(Objects::nonNull)
                 .forEach(AdmitCardProber::saveAdmitcard);
 
     }
@@ -173,8 +174,7 @@ public class AdmitCardProber {
             }
             JSONArray jsonArray = jsonObject.getJSONArray("data");
             JSONObject jsobj = jsonArray.getJSONObject(0);
-            AdmitCard sm = gson.fromJson(jsobj.toString(), AdmitCard.class);
-            return sm;
+            return gson.fromJson(jsobj.toString(), AdmitCard.class);
         } catch (IOException | UnsupportedOperationException | JSONException | JsonSyntaxException ex) {
             Logger.getLogger(AdmitCardProber.class.getName()).log(Level.SEVERE, null, ex);
             AdmitCard fg = new NullAdmitCard();

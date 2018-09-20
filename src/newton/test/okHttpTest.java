@@ -15,19 +15,19 @@
  */
 package newton.test;
 
+import okhttp3.*;
+
 import java.io.IOException;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 
-public class okHttpTest {
+class okHttpTest {
 
-    OkHttpClient client = new OkHttpClient();
+    // post request code here
+    private static final MediaType JSON
+            = MediaType.parse("application/json; charset=utf-8");
+    private OkHttpClient client = new OkHttpClient();
 
     // code request code here
-    String doGetRequest(String url) throws IOException {
+    private String doGetRequest(String url) throws IOException {
         Request request = new Request.Builder()
                 .url(url)
                 .build();
@@ -36,12 +36,8 @@ public class okHttpTest {
         return response.body().string();
     }
 
-    // post request code here
-    public static final MediaType JSON
-            = MediaType.parse("application/json; charset=utf-8");
-
     // test data
-    String bowlingJson(String player1, String player2) {
+    private String bowlingJson(String player1, String player2) {
         return "{'winCondition':'HIGH_SCORE',"
                 + "'name':'Bowling',"
                 + "'round':4,"
@@ -53,7 +49,7 @@ public class okHttpTest {
                 + "]}";
     }
 
-    String doPostRequest(String url, String json) throws IOException {
+    private String doPostRequest(String url, String json) throws IOException {
         RequestBody body = RequestBody.create(JSON, json);
         Request request = new Request.Builder()
                 .url(url)

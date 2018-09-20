@@ -19,12 +19,12 @@ package newton.test;
  *
  * @author Meghdut Mandal
  */
-public class AIScanner extends javax.swing.JFrame {
+class AIScanner extends javax.swing.JFrame {
 
     /**
      * Creates new form AIScanner
      */
-    public AIScanner() {
+    private AIScanner() {
         initComponents();
     }
 

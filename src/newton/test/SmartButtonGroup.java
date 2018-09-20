@@ -9,6 +9,6 @@ package newton.test;
  *
  * @author Meghdut Mandal
  */
-public class SmartButtonGroup {
+class SmartButtonGroup {
 
 }

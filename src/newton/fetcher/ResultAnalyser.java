@@ -5,21 +5,25 @@
  */
 package newton.fetcher;
 
-import com.gargoylesoftware.htmlunit.html.DomElement;
-import com.gargoylesoftware.htmlunit.html.DomNodeList;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
+
+import newton.resultApi.CBSEResult;
+import newton.resultApi.ProcessObserver;
+import newton.resultApi.ResultClient;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
+
+import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import static java.nio.file.StandardOpenOption.CREATE;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.SwingWorker;
-import newton.resultApi.CBSEResult;
-import newton.resultApi.HtmlUnitClient;
-import newton.resultApi.ProcessObserver;
+
+import static java.nio.file.StandardOpenOption.CREATE;
 
 /**
  * arranging
@@ -33,25 +37,23 @@ public class ResultAnalyser extends SwingWorker<Void, Object> implements Process
     private final File resDir;
     private final MODE mode;
 
-    /**
-     *
-     */
-    public static enum MODE {
+    @Override
+    protected Void doInBackground() throws IOException {
 
-        /**
-         *
-         */
-        RESULT_MERGE, 
+        List<File> fList = Arrays.asList(Objects.requireNonNull(resDir.listFiles()));
 
-        /**
-         *
-         */
-        TOTALWISELIST, 
+        if (mode == MODE.RESULT_MERGE) {
 
-        /**
-         *
-         */
-        SUBJECTWISELIST
+            mergeResults(fList, analysisFile);
+
+        } else if (mode == MODE.SUBJECTWISELIST) {
+            this.subjectWise(fList, analysisFile);
+
+        } else if (mode == MODE.TOTALWISELIST) {
+            this.totalWise(fList, analysisFile);
+
+        }
+        return null;
     }
 
     /**
@@ -99,25 +101,6 @@ public class ResultAnalyser extends SwingWorker<Void, Object> implements Process
         app.getHTMLViewer().setVisible(true);
     }
 
-    @Override
-    protected Void doInBackground() throws IOException {
-
-        List<File> fList = Arrays.asList(resDir.listFiles());
-
-        if (mode == MODE.RESULT_MERGE) {
-
-            mergeResults(fList, analysisFile);
-
-        } else if (mode == MODE.SUBJECTWISELIST) {
-            this.subjectWise(fList, analysisFile);
-
-        } else if (mode == MODE.TOTALWISELIST) {
-            this.totalWise(fList, analysisFile);
-
-        }
-        return null;
-    }
-
     /**
      *
      * @param htmls
@@ -125,7 +108,7 @@ public class ResultAnalyser extends SwingWorker<Void, Object> implements Process
      * @throws IOException
      */
     @SuppressWarnings(value = "UnusedAssignment")
-    public void mergeResults(List<File> htmls, File output) throws IOException {
+    private void mergeResults(List<File> htmls, File output) throws IOException {
         output.createNewFile();
         if (!output.exists()) {
             throw new java.io.FileNotFoundException("Doesnt exist ! ");
@@ -142,16 +125,16 @@ public class ResultAnalyser extends SwingWorker<Void, Object> implements Process
                 }
                 if (html.exists()) {
                     this.publishString("Working on " + html.getName());
-                    HtmlPage page = null;
+                    String page = null;
 
-                    page = app.getCBSEFetcher().getWebClient().getPage(html.toURI().toURL());
-
+                    String str;
+                    Document doc = Jsoup.parse(ResultClient.readFiletoText(html));
                     if (page == null) {
                         continue;
                     }
-                    DomNodeList<DomElement> elements = page.getElementsByTagName("table");
-                    elements.stream().filter(docElem -> docElem.asText().contains("Roll No") || docElem.asText().contains("SUB CODE"))
-                            .forEach(docElemF -> wr.write(docElemF.asXml()
+                    Elements elements = doc.getElementsByTag("table");//page.getElementsByTagName("table");
+                    elements.stream().filter(docElem -> docElem.text().contains("Roll No") || docElem.text().contains("SUB CODE"))
+                            .forEach(docElemF -> wr.write(docElemF.outerHtml()
                                             .replace("Â Â Â Â", "").replace("Â", "").replace("mediumblue", "blue")
                                     ));
                 }
@@ -170,9 +153,9 @@ public class ResultAnalyser extends SwingWorker<Void, Object> implements Process
      * @param output
      * @throws IOException
      */
-    public void totalWise(List<File> folder, File output) throws IOException {
+    private void totalWise(List<File> folder, File output) throws IOException {
 
-        String totalWise = HtmlUnitClient.totalWise(folder, this);
+        String totalWise = ResultClient.totalWise(folder, this);
         Files.write(output.toPath(), totalWise.getBytes(), CREATE);
 
     }
@@ -183,14 +166,14 @@ public class ResultAnalyser extends SwingWorker<Void, Object> implements Process
      * @param output
      * @throws IOException
      */
-    public void subjectWise(List<File> folder, File output) throws IOException {
-        String subjwise = HtmlUnitClient.subjectWise(folder, this);
+    private void subjectWise(List<File> folder, File output) throws IOException {
+        String subjwise = ResultClient.subjectWise(folder, this);
         Files.write(output.toPath(), subjwise.getBytes(), CREATE);
     }
 
     @Override
     protected void process(List<Object> chunks) {
-        chunks.stream().forEach(chunk -> {
+        chunks.forEach(chunk -> {
             if (chunk instanceof Integer) {
                 int last = (Integer) chunk;
                 app.setProgress(last);
@@ -198,6 +181,27 @@ public class ResultAnalyser extends SwingWorker<Void, Object> implements Process
                 app.setAnalysisInfo(chunk.toString());
             }
         });
+    }
+
+    /**
+     *
+     */
+    public enum MODE {
+
+        /**
+         *
+         */
+        RESULT_MERGE,
+
+        /**
+         *
+         */
+        TOTALWISELIST,
+
+        /**
+         *
+         */
+        SUBJECTWISELIST
     }
 
     /**

@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -39,11 +40,18 @@ public class RollRange {
 //</editor-fold>
 
     /**
+     * @param prefix
+     */
+    private RollRange(String prefix) {
+        this.prefix = prefix;
+    }
+
+    /**
      *
      * @param card
      * @return
      */
-        public static AdmitCard getAdmitcard(File card) {
+    public static AdmitCard getAdmitcard(File card) {
         java.io.FileInputStream fin = null;
         try {
             java.io.ObjectInputStream oin = null;
@@ -59,7 +67,7 @@ public class RollRange {
 
         } finally {
             try {
-                fin.close();
+                Objects.requireNonNull(fin).close();
             } catch (IOException ex) {
                 Logger.getLogger(RollRange.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -70,39 +78,10 @@ public class RollRange {
     /**
      *
      * @param prefix
-     */
-    public RollRange(String prefix) {
-        this.prefix = prefix;
-    }
-
-    /**
-     *
      * @return
      */
-    public boolean loadRange() {
-        folder = new File(parent.getAbsoluteFile(), prefix);
-
-        try {
-            this.cardList = Arrays.asList(folder.listFiles()).stream().map(RollRange::getAdmitcard).filter(o -> {
-                return o != null;
-            }).sorted((a, b) -> {
-
-                try {
-                    return a.getRollno().compareTo(b.getRollno());
-                } catch (Exception e) {
-                    Logger.getLogger(RollRange.class.getName()).log(Level.SEVERE, null, e);
-                    return 0;
-                }
-            }).collect(Collectors.toList());
-            System.out.println("Range Loaded ");
-            cardList.stream().map(AdmitCard::getRollno).forEach(str -> {
-                System.out.print(str + " , ");
-            });
-        } catch (Exception e) {
-            Logger.getLogger(RollRange.class.getName()).log(Level.SEVERE, null, e);
-            return false;
-        }
-        return true;
+    private static RollRange toRollRange(String prefix) {
+        return new RollRange(prefix);
     }
 
     private void fillRange(int loc) throws IOException {
@@ -167,10 +146,63 @@ public class RollRange {
         }
     }
 
+    private static void loadAll() {
+//         List<Integer> ch = Arrays.asList(
+//                16,17, 18, 19,21, 26, 27, 28, 29, 36, 37, 38, 39, 46, 47, 48, 49, 56, 57, 58, 59,
+//                61, 62, 66,
+//                67, 68, 69, 76, 77, 78, 79, 91, 92, 93, 94, 95, 96, 97, 98, 99);
+//        List<String> strlst = new java.util.ArrayList<>(ch.size()*10);
+//        ch.stream().forEach((get) -> {
+//            for (int j = 0; j < 10; j++) {
+//                strlst.add(get+""+j);
+//            }
+//        });
+//        System.out.println(" "+strlst.toString());
+        Arrays.stream(Objects.requireNonNull(parent.listFiles())).filter(fol -> Objects.requireNonNull(fol.list()).length != 0).map(File::getName).map(RollRange::toRollRange).forEach(RollRange::processRange);
+//        strlst.stream().parallel().map(RollRange::toRollRange).forEach(RollRange::processRange);
+    }
+
+    /**
+     *
+     * @param args
+     */
+    public static void main(String[] args) {
+//        RollRange rr = new RollRange("173");
+//        rr.processRange();
+        //loadAll();
+        toRollRange("666").processRange();
+    }
+
+    /**
+     *
+     * @return
+     */
+    private boolean loadRange() {
+        folder = new File(parent.getAbsoluteFile(), prefix);
+
+        try {
+            this.cardList = Arrays.stream(Objects.requireNonNull(folder.listFiles())).map(RollRange::getAdmitcard).filter(Objects::nonNull).sorted((a, b) -> {
+
+                try {
+                    return a.getRollno().compareTo(b.getRollno());
+                } catch (Exception e) {
+                    Logger.getLogger(RollRange.class.getName()).log(Level.SEVERE, null, e);
+                    return 0;
+                }
+            }).collect(Collectors.toList());
+            System.out.println("Range Loaded ");
+            cardList.stream().map(AdmitCard::getRollno).forEach(str -> System.out.print(str + " , "));
+        } catch (Exception e) {
+            Logger.getLogger(RollRange.class.getName()).log(Level.SEVERE, null, e);
+            return false;
+        }
+        return true;
+    }
+
     /**
      *
      */
-    public void processRange() {
+    private void processRange() {
         System.out.println("Prefix for " + prefix);
         try {
             loadRange();
@@ -189,44 +221,5 @@ public class RollRange {
             Logger.getLogger(RollRange.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-    }
-
-    /**
-     *
-     * @param prefix
-     * @return
-     */
-    public static RollRange toRollRange(String prefix) {
-        return new RollRange(prefix);
-    }
-
-    private static void loadAll() {
-//         List<Integer> ch = Arrays.asList(
-//                16,17, 18, 19,21, 26, 27, 28, 29, 36, 37, 38, 39, 46, 47, 48, 49, 56, 57, 58, 59,
-//                61, 62, 66,
-//                67, 68, 69, 76, 77, 78, 79, 91, 92, 93, 94, 95, 96, 97, 98, 99);
-//        List<String> strlst = new java.util.ArrayList<>(ch.size()*10);
-//        ch.stream().forEach((get) -> {
-//            for (int j = 0; j < 10; j++) {
-//                strlst.add(get+""+j);
-//            }
-//        });
-//        System.out.println(" "+strlst.toString());
-        Arrays.asList(parent.listFiles()).stream().filter(fol -> {
-            return fol.list().length != 0;
-        }).map(File::getName).map(RollRange::toRollRange).forEach(RollRange::processRange);
-//        strlst.stream().parallel().map(RollRange::toRollRange).forEach(RollRange::processRange);
-    }
-
-    /**
-     *
-     * @param args
-     * @throws Exception
-     */
-    public static void main(String[] args) throws Exception {
-//        RollRange rr = new RollRange("173");
-//        rr.processRange();
-        //loadAll();
-        toRollRange("666").processRange();
     }
 }

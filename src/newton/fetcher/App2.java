@@ -5,20 +5,21 @@
  */
 package newton.fetcher;
 
-import java.awt.Color;
-import javax.swing.JPanel;
 import newton.test.MoveListner;
+
+import javax.swing.*;
+import java.awt.*;
 
 /**
  *
  * @author Meghdut Mandal
  */
-public class App2 extends javax.swing.JFrame {
+class App2 extends javax.swing.JFrame {
 
     /**
      * Creates new form App2
      */
-    public App2() {
+    private App2() {
         initComponents();
         MoveListner.setUP(this, side_pane);
     }

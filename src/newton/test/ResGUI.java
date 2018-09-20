@@ -20,10 +20,10 @@ package newton.test;
  *
  * @author Nitin
  */
-public class ResGUI extends javax.swing.JFrame {
+class ResGUI extends javax.swing.JFrame {
 
     /** Creates new form ResGUI */
-    public ResGUI() {
+    private ResGUI() {
         initComponents();
     }
 

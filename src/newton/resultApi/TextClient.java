@@ -15,12 +15,12 @@ import java.util.Scanner;
  *
  * @author Meghdut Mandal
  */
-public class TextClient {
+class TextClient {
 
     /**
      *
      */
-    public static String[][] subjCodes = {
+    private static String[][] subjCodes = {
         {"﻿101", "FUNCTIONAL ENGLISH"}, {"001", "ENGLISH ELECTIVE"}, {"002", "HINDI ELECTIVE"}, {"003", "URDU ELECTIVE"}, {"104", "PUNJABI"},
         {"105", "BENGALI"}, {"106", "TAMIL"}, {"107", "TELUGU"}, {"108", "SINDHI"}, {"109", "MARATHI"}, {"110", "GUJARATI"},
         {"111", "MANIPURI"}, {"112", "MALAYALAM"}, {"113", "ODIA"}, {"114", "ASSAMESE"}, {"115", "KANNADA"}, {"116", "ARABIC"},
@@ -90,7 +90,7 @@ public class TextClient {
      * @param code
      * @return
      */
-    public static String getSUBj(String code) {
+    private static String getSUBj(String code) {
         for (String[] arr1 : subjCodes) {
             if (arr1[0].equals(code)) {
                 return arr1[1];
@@ -106,7 +106,7 @@ public class TextClient {
      * @return
      * @throws IOException
      */
-    public static String topperWise(File textFile, ProcessObserver ob) throws IOException {
+    private static String topperWise(File textFile, ProcessObserver ob) throws IOException {
         return CBSEResult.subjectWise(getResultList(textFile, ob));
 
     }
@@ -128,7 +128,7 @@ public class TextClient {
      * @return
      * @throws IOException
      */
-    public static List<CBSEResult> getResultList(File textFile, ProcessObserver ob) throws IOException {
+    private static List<CBSEResult> getResultList(File textFile, ProcessObserver ob) throws IOException {
         List<String> readAllLines = Files.readAllLines(textFile.toPath());
         List<CBSEResult> resultlist = new java.util.ArrayList<>();
         readAllLines.stream().

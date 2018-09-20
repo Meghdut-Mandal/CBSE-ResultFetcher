@@ -5,15 +5,15 @@
  */
 package newton.test;
 
-import java.awt.Color;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.MouseEvent;
-import javax.swing.JComponent;
 
 /**
  *
  * @author Meghdut Mandal
  */
-public class ButtonRollOver implements java.awt.event.MouseListener, java.awt.event.MouseMotionListener {
+class ButtonRollOver implements java.awt.event.MouseListener, java.awt.event.MouseMotionListener {
 
     private Color pressed, moveover, normal;
     private javax.swing.JComponent jc;

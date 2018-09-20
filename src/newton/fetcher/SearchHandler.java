@@ -5,15 +5,15 @@
  */
 package newton.fetcher;
 
-import java.util.Optional;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import java.util.Optional;
 
 /**
  *
  * @author Meghdut Mandal
  */
-public class SearchHandler {
+class SearchHandler {
 
     private final BatchView batchView;
     private final TabelSearchRenderer renderer;
@@ -64,7 +64,7 @@ public class SearchHandler {
     public void searchUpdate() {
         String pattern = batchView.getSeachField().getText().trim();
         renderer.setPattern(pattern);
-        batchView.getResultViewList().stream().forEach(ResultView::repaint);
+        batchView.getResultViewList().forEach(ResultView::repaint);
 
         Optional<ResultView> findFirst = batchView.getResultViewList().stream().filter((res) -> res.hasMatch(pattern)).findFirst();
 

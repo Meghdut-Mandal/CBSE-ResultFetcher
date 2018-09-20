@@ -18,32 +18,24 @@ package newton.test;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import static java.nio.file.StandardOpenOption.CREATE_NEW;
 import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
 /**
  *
  * @author newton
  */
-public class GrabberState implements java.io.Serializable {
+class GrabberState implements java.io.Serializable {
 
     long serialVersionUID = 5453435;
     private java.util.Hashtable<String, String> hashtable;
     private String last;
     private File dataFile;
 
-    /**
-     *
-     */
-    public GrabberState() {
-
-        hashtable = new java.util.Hashtable<>();
-        last = "NOL:AST";
-        dataFile = new File("data.props");
-
-    }
+    private int count = 0;
 
     /**
      *
@@ -61,7 +53,17 @@ public class GrabberState implements java.io.Serializable {
         }
 
     }
-    int count = 0;
+
+    /**
+     *
+     */
+    private GrabberState() {
+
+        hashtable = new java.util.Hashtable<>();
+        last = "NOL:AST";
+        dataFile = new File("data.props");
+
+    }
 
     /**
      *

@@ -9,15 +9,11 @@ package newton.test;
 //https://ateraimemo.com/Swing/ScrollBarSearchHighlighter.html
 
 import com.sun.java.swing.plaf.windows.WindowsScrollBarUI;
-import java.awt.Adjustable;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.EventQueue;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
+
+import javax.swing.*;
+import javax.swing.plaf.metal.MetalScrollBarUI;
+import javax.swing.text.*;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.IOException;
@@ -27,40 +23,17 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import javax.swing.BorderFactory;
-import javax.swing.BoundedRangeModel;
-import javax.swing.Box;
-import javax.swing.Icon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollBar;
-import javax.swing.JScrollPane;
-import javax.swing.JViewport;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.WindowConstants;
-import javax.swing.plaf.metal.MetalScrollBarUI;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultHighlighter;
-import javax.swing.text.Document;
-import javax.swing.text.Highlighter;
-import javax.swing.text.JTextComponent;
 
 /**
  *
  * @author MICROSOFT
  */
-public class MainPanel extends JPanel {
+class MainPanel extends JPanel {
 
     /**
      *
      */
-    protected static final String PATTERN = "MAD";
+    private static final String PATTERN = "MAD";
 
     /**
      *
@@ -83,34 +56,28 @@ public class MainPanel extends JPanel {
     /**
      *
      */
-    protected final transient Highlighter.HighlightPainter highlightPainter = new DefaultHighlighter.DefaultHighlightPainter(Color.YELLOW);
+    private final transient Highlighter.HighlightPainter highlightPainter = new DefaultHighlighter.DefaultHighlightPainter(Color.YELLOW);
 
     /**
      *
      */
-    protected final org.jdesktop.swingx.JXEditorPane textArea = new org.jdesktop.swingx.JXEditorPane();
+    private final org.jdesktop.swingx.JXEditorPane textArea = new org.jdesktop.swingx.JXEditorPane();
 
     /**
      *
      */
-    protected final JScrollPane scroll = new JScrollPane(textArea);
+    private final JScrollPane scroll = new JScrollPane(textArea);
 
     /**
      *
      */
-    protected final JScrollBar scrollbar = new JScrollBar(Adjustable.VERTICAL);
-//     protected final JScrollBar scrollbar = new JScrollBar(Adjustable.VERTICAL) {
-//         @Override public Dimension getPreferredSize() {
-//             Dimension d = super.getPreferredSize();
-//             d.width += 4; //getInsets().left;
-//             return d;
-//         }
-//     };
+    private final JScrollBar scrollbar = new JScrollBar(Adjustable.VERTICAL);
+
 
     /**
      *
      */
-    public MainPanel() {
+    private MainPanel() {
         super(new BorderLayout());
         //  textArea.setEditable(false);
         try {
@@ -172,10 +139,34 @@ public class MainPanel extends JPanel {
 
     /**
      *
+     */
+    private static void createAndShowGUI() {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
+            ex.printStackTrace();
+        }
+        JFrame frame = new JFrame("ScrollBarSearchHighlighter");
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        frame.getContentPane().add(new MainPanel());
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
+    }
+
+    /**
+     * @param args
+     */
+    public static void main(String... args) {
+        EventQueue.invokeLater(MainPanel::createAndShowGUI);
+    }
+
+    /**
+     *
      * @param jtc
      * @param pattern
      */
-    public void setHighlight(JTextComponent jtc, String pattern) {
+    private void setHighlight(JTextComponent jtc, String pattern) {
         Highlighter highlighter = jtc.getHighlighter();
         highlighter.removeAllHighlights();
         Document doc = jtc.getDocument();
@@ -192,32 +183,8 @@ public class MainPanel extends JPanel {
         } catch (BadLocationException | PatternSyntaxException ex) {
             ex.printStackTrace();
         }
+
         repaint();
-    }
-
-    /**
-     *
-     * @param args
-     */
-    public static void main(String... args) {
-        EventQueue.invokeLater(MainPanel::createAndShowGUI);
-    }
-
-    /**
-     *
-     */
-    public static void createAndShowGUI() {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
-            ex.printStackTrace();
-        }
-        JFrame frame = new JFrame("ScrollBarSearchHighlighter");
-        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.getContentPane().add(new MainPanel());
-        frame.pack();
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
     }
 }
 
@@ -228,7 +195,7 @@ class HighlightIcon implements Icon {
     private final JTextComponent textArea;
     private final JScrollBar scrollbar;
 
-    protected HighlightIcon(JTextComponent textArea, JScrollBar scrollbar) {
+    HighlightIcon(JTextComponent textArea, JScrollBar scrollbar) {
         this.textArea = textArea;
         this.scrollbar = scrollbar;
     }
@@ -291,7 +258,7 @@ class WindowsHighlightScrollBarUI extends WindowsScrollBarUI {
     private final JTextComponent textArea;
     private Color hiliteColor = Color.RED;
 
-    protected WindowsHighlightScrollBarUI(JTextComponent textArea) {
+    WindowsHighlightScrollBarUI(JTextComponent textArea) {
         super();
         this.textArea = textArea;
     }
@@ -322,7 +289,7 @@ class MetalHighlightScrollBarUI extends MetalScrollBarUI {
 
     private final JTextComponent textArea;
 
-    protected MetalHighlightScrollBarUI(JTextComponent textArea) {
+    MetalHighlightScrollBarUI(JTextComponent textArea) {
         super();
         this.textArea = textArea;
     }
